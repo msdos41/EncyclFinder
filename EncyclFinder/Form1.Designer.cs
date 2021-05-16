@@ -28,6 +28,7 @@
         /// </summary>
         private void InitializeComponent()
         {
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(Form1));
             this.webBrowserContent = new System.Windows.Forms.WebBrowser();
             this.buttonSearch = new System.Windows.Forms.Button();
             this.listBoxResult = new System.Windows.Forms.ListBox();
@@ -39,7 +40,7 @@
             this.webBrowserContent.Location = new System.Drawing.Point(279, 12);
             this.webBrowserContent.MinimumSize = new System.Drawing.Size(20, 20);
             this.webBrowserContent.Name = "webBrowserContent";
-            this.webBrowserContent.Size = new System.Drawing.Size(1131, 772);
+            this.webBrowserContent.Size = new System.Drawing.Size(1198, 808);
             this.webBrowserContent.TabIndex = 2;
             // 
             // buttonSearch
@@ -55,12 +56,12 @@
             // listBoxResult
             // 
             this.listBoxResult.FormattingEnabled = true;
-            this.listBoxResult.HorizontalExtent = 100;
+            this.listBoxResult.HorizontalExtent = 500;
             this.listBoxResult.HorizontalScrollbar = true;
             this.listBoxResult.ItemHeight = 12;
             this.listBoxResult.Location = new System.Drawing.Point(12, 49);
             this.listBoxResult.Name = "listBoxResult";
-            this.listBoxResult.Size = new System.Drawing.Size(261, 736);
+            this.listBoxResult.Size = new System.Drawing.Size(261, 772);
             this.listBoxResult.TabIndex = 4;
             this.listBoxResult.DoubleClick += new System.EventHandler(this.listBoxResult_MouseDoubleClick);
             // 
@@ -75,12 +76,14 @@
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(1422, 796);
+            this.ClientSize = new System.Drawing.Size(1489, 832);
             this.Controls.Add(this.textBoxInput);
             this.Controls.Add(this.listBoxResult);
             this.Controls.Add(this.buttonSearch);
             this.Controls.Add(this.webBrowserContent);
+            this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.Name = "Form1";
+            this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "Encyclopedia Finder";
             this.ResumeLayout(false);
             this.PerformLayout();

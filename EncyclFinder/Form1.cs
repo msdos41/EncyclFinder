@@ -10,7 +10,8 @@ using System.Windows.Forms;
 using System.IO;
 using System.Web;
 using System.Net;
-using Microsoft.Win32;
+using Microsoft.Win32;                          //注册表
+using System.Text.RegularExpressions;           //正则表达式
 
 namespace EncyclFinder
 {
@@ -18,8 +19,7 @@ namespace EncyclFinder
     {
         public static List<FileInfo> _lstFileAll = new List<FileInfo>();
         public static List<string> _lstFilePathAll = new List<string>();
-        public static List<string> _lstSearchResultPath = new List<string>();
-        public static List<string> _lstSearchResultTitle = new List<string>();
+        public static SortedDictionary<string, string> _lstDicSearchResult = new SortedDictionary<string, string>();
         public static int _iCountSearch = 0;
         public static string _sRootPath = "";
         
@@ -65,8 +65,7 @@ namespace EncyclFinder
             _iCountSearch++;
             this.listBoxResult.Items.Clear();
             this.webBrowserContent.Navigate("about:blank");
-            _lstSearchResultPath.Clear();
-            _lstSearchResultTitle.Clear();
+            _lstDicSearchResult.Clear();
 
             if (_iCountSearch==1)
             {
@@ -83,36 +82,38 @@ namespace EncyclFinder
 
             string sInput = textBoxInput.Text;
             
-            SearchFilesFromKeyWord(sInput, _lstFilePathAll, ref _lstSearchResultPath,ref _lstSearchResultTitle);
-            //foreach (string s in _lstSearchResultPath)
-            //{
-            //    int iIndex = s.LastIndexOf("\\");
-            //    string sFileName = s.Substring(iIndex + 1, s.Length - iIndex-1);
-            //    listBoxResult.Items.Add(sFileName);
-            //}
+            SearchFilesFromKeyWord(sInput, _lstFilePathAll, ref _lstDicSearchResult);
             //
-            int iSize = _lstSearchResultPath.Count;
-            for (int i = 0; i < iSize;i++ )
+            //int iSize = _lstSearchResult.Count;
+            //for (int i = 0; i < iSize;i++ )
+            //{
+            //    string sTitle = _lstSearchResultTitle[i];
+            //    if (sTitle=="")
+            //    {
+            //        string sPath = _lstSearchResultPath[i];
+            //        int iIndex = sPath.LastIndexOf("\\");
+            //        sTitle = sPath.Substring(iIndex + 1, sPath.Length - iIndex - 1);
+            //    }
+            //    listBoxResult.Items.Add(sTitle);
+            //}
+            foreach (string sKey in _lstDicSearchResult.Keys)
             {
-                string sTitle = _lstSearchResultTitle[i];
-                if (sTitle=="")
-                {
-                    string sPath = _lstSearchResultPath[i];
-                    int iIndex = sPath.LastIndexOf("\\");
-                    sTitle = sPath.Substring(iIndex + 1, sPath.Length - iIndex - 1);
-                }
+                string sTitle = sKey;
                 listBoxResult.Items.Add(sTitle);
             }
         }
 
         private void listBoxResult_MouseDoubleClick(object sender, EventArgs e)
         {
-            int iSelectIndex = listBoxResult.SelectedIndex;
-            if (iSelectIndex>=0)
-            {
-                string sPath = _lstSearchResultPath[iSelectIndex];
-                this.webBrowserContent.Navigate(sPath);
-            }
+            //int iSelectIndex = listBoxResult.SelectedIndex;
+            //if (iSelectIndex>=0)
+            //{
+            //    string sPath = _lstSearchResultPath[iSelectIndex];
+            //    this.webBrowserContent.Navigate(sPath);
+            //}
+            string sTitle = (string)listBoxResult.SelectedItem;
+            string sPath = _lstDicSearchResult[sTitle];
+            this.webBrowserContent.Navigate(sPath);
         }
 
         public void FindFile(string dirPath,ref List<string> oLstPath)
@@ -173,17 +174,20 @@ namespace EncyclFinder
             }
         }
 
-        public void SearchFilesFromKeyWord(string isKeyWord, List<string> ilstFileAll, ref List<string> olstFind,ref List<string> olstFindTitle)
+        public void SearchFilesFromKeyWord(string isKeyWord, List<string> ilstFileAll, ref SortedDictionary<string,string> olstResults)
         {
             foreach (string sPath in ilstFileAll)
             {
                 string sContent="";
                 GetContentFromHTML(sPath, ref sContent);
-                int iIndex = sContent.IndexOf(isKeyWord);
-                if (iIndex>-1)
+                //int iIndex = sContent.IndexOf(isKeyWord);
+                if (KeyWordsIsMatch(sContent,isKeyWord))
                 {
-                    olstFind.Add(sPath);
-
+                    sContent = sContent.Replace("<Title>", "<title>");
+                    sContent = sContent.Replace("<TITLE>", "<title>");
+                    sContent = sContent.Replace("</Title>", "</title>");
+                    sContent = sContent.Replace("</TITLE>", "</title>");
+                    
                     //获取文档中的title
                     string sTitle = "";
                     int iIndexTitleStart = sContent.IndexOf("<title>");
@@ -194,15 +198,22 @@ namespace EncyclFinder
                         iIndexTitleStart = iIndexTitleStart+7;
                         sTitle = sTitle.Substring(iIndexTitleStart, sTitle.Length - iIndexTitleStart);
                     }
+                    sTitle = sTitle.Replace("\n", " ");
+                    while (0==sTitle.IndexOf(" "))
+                    {
+                        sTitle = sTitle.Substring(1, sTitle.Length - 1);
+                    }
 
-                    olstFindTitle.Add(sTitle);
+                    //olstResults.Add(sTitle, sPath);
+                    olstResults[sTitle] = sPath;
                 }
             }
         }
+
+        private bool KeyWordsIsMatch(string isContent, string isKeyWords)
+        {
+            return Regex.IsMatch(isContent, isKeyWords, RegexOptions.IgnoreCase);
+        }
     }
 
-    class GeneralCls
-    {
-
-    }
 }
